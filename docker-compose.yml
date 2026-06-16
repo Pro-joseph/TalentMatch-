@@ -16,6 +16,8 @@ services:
     build: .
     volumes:
       - .:/var/www
+      - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./docker/php/fpm.conf:/usr/local/etc/php-fpm.d/custom.conf
     depends_on:
       - mysql
       - redis
