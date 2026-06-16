@@ -6,9 +6,7 @@ use App\Http\Controllers\CandidatController;
 use App\Http\Controllers\OffreController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::redirect('/', '/login');
 
 Route::middleware('auth')->group(function () {
     Route::resource('offres', OffreController::class);
