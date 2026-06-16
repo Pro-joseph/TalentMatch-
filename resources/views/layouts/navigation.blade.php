@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('candidats.index')" :active="request()->routeIs('candidats.*')">
                         {{ __('Candidats') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('agent-conversations.index')" :active="request()->routeIs('agent-conversations.*')">
+                        {{ __('Assistant RH') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -81,6 +84,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('candidats.index')" :active="request()->routeIs('candidats.*')">
                 {{ __('Candidats') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('agent-conversations.index')" :active="request()->routeIs('agent-conversations.*')">
+                {{ __('Assistant RH') }}
             </x-responsive-nav-link>
         </div>
 
