@@ -1,23 +1,19 @@
 <?php
 
+use App\Http\Controllers\AnalyseController;
+use App\Http\Controllers\CandidatController;
 use App\Http\Controllers\OffreController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
     Route::resource('offres', OffreController::class);
-});
+    Route::resource('candidats', CandidatController::class);
 
-require __DIR__.'/auth.php';
+    Route::get('offres/{offre}/analyses', [AnalyseController::class, 'index'])->name('analyses.index');
+    Route::post('offres/{offre}/analyser', [AnalyseController::class, 'store'])->name('analyses.store');
+    Route::get('analyses/{analyse}', [AnalyseController::class, 'show'])->name('analyses.show');
+});

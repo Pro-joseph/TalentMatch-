@@ -2,7 +2,9 @@
 
 namespace App;
 
-enum Recommandation
+enum Recommandation: string
 {
-    //
+    case Recommande = 'recommandé';
+    case Reserve = 'réservé';
+    case NonRetenu = 'non_retenu';
 }

@@ -5,13 +5,16 @@
                 {{ $offre->titre }}
             </h2>
             <div class="flex items-center gap-3">
-                <a href="{{ route('offres.edit', $offre) }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                <a href="{{ route('analyses.index', $offre) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">
+                    Analyses
+                </a>
+                <a href="{{ route('offres.edit', $offre) }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600">
                     Modifier
                 </a>
                 <form method="POST" action="{{ route('offres.destroy', $offre) }}" onsubmit="return confirm('Supprimer cette offre ?')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500">
                         Supprimer
                     </button>
                 </form>
@@ -46,6 +49,29 @@
                 </div>
 
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Lancer une analyse</h3>
+                    @php
+                        $candidats = auth()->user()->candidats;
+                    @endphp
+                    @if ($candidats->isEmpty())
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Ajoutez d'abord des candidats.</p>
+                        <a href="{{ route('candidats.create') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800">+ Ajouter un candidat</a>
+                    @else
+                        <form method="POST" action="{{ route('analyses.store', $offre) }}" class="flex items-center gap-3">
+                            @csrf
+                            <select name="candidat_id" class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                @foreach ($candidats as $candidat)
+                                    <option value="{{ $candidat->id }}">{{ $candidat->nom }}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white">
+                                Analyser
+                            </button>
+                        </form>
+                    @endif
+                </div>
+
+                <div class="pt-4">
                     <a href="{{ route('offres.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">&larr; Retour à mes offres</a>
                 </div>
             </div>
