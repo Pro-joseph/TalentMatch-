@@ -5,9 +5,6 @@
                 <x-application-logo />
 
                 <div class="hidden sm:flex sm:items-center sm:gap-1">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Tableau de bord') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('offres.index')" :active="request()->routeIs('offres.*')">
                         {{ __('Offres') }}
                     </x-nav-link>
@@ -59,9 +56,6 @@
 
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-warm-200">
         <div class="pt-2 pb-3 space-y-1 px-4">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Tableau de bord') }}
-            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('offres.index')" :active="request()->routeIs('offres.*')">
                 {{ __('Offres') }}
             </x-responsive-nav-link>
