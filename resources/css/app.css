@@ -1,3 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    ::selection {
+        background-color: #c9644a;
+        color: #fff;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #dcc4a7;
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #c9a57a;
+    }
+}
+
+@layer components {
+    .recommendation-badge {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold leading-none;
+    }
+    .recommendation-badge-recommande {
+        @apply recommendation-badge bg-emerald-600 text-white;
+    }
+    .recommendation-badge-reserve {
+        @apply recommendation-badge bg-amber-600 text-white;
+    }
+    .recommendation-badge-non-retenu {
+        @apply recommendation-badge bg-red-600 text-white;
+    }
+
+    .card {
+        @apply bg-white border-l-4 border-brand-600 rounded-r-lg shadow-sm;
+    }
+
+    .card-plain {
+        @apply bg-white rounded-lg shadow-sm border border-warm-200;
+    }
+
+    .stat-label {
+        @apply text-xs font-medium text-warm-500 uppercase tracking-wider;
+    }
+}
+
+@layer utilities {
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.2s; }
+    .stagger-5 { animation-delay: 0.25s; }
+    .stagger-6 { animation-delay: 0.3s; }
+    .stagger-7 { animation-delay: 0.35s; }
+    .stagger-8 { animation-delay: 0.4s; }
+}

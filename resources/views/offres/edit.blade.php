@@ -1,66 +1,52 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Modifier &mdash; {{ $offre->titre }}
-        </h2>
+        <h2 class="font-display text-2xl font-semibold text-warm-900">Modifier &mdash; {{ $offre->titre }}</h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="card">
                 <form method="POST" action="{{ route('offres.update', $offre) }}" class="space-y-6">
                     @csrf
                     @method('PUT')
 
                     <div>
-                        <label for="titre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titre</label>
-                        <input type="text" name="titre" id="titre" value="{{ old('titre', $offre->titre) }}" required
-                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('titre')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <x-input-label for="titre" :value="__('Titre')" />
+                        <x-text-input id="titre" class="block mt-1 w-full" type="text" name="titre" :value="old('titre', $offre->titre)" required />
+                        <x-input-error :messages="$errors->get('titre')" class="mt-2" />
                     </div>
 
                     <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea name="description" id="description" rows="6" required
-                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $offre->description) }}</textarea>
-                        @error('description')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <x-input-label for="description" :value="__('Description')" />
+                        <textarea id="description" name="description" rows="6" required
+                            class="block mt-1 w-full border-warm-300 focus:border-brand-500 focus:ring-brand-500 rounded-md shadow-sm">{{ old('description', $offre->description) }}</textarea>
+                        <x-input-error :messages="$errors->get('description')" class="mt-2" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Compétences requises</label>
-                        <div id="skills-wrapper" class="space-y-2">
+                        <x-input-label :value="__('Compétences requises')" />
+                        <div id="skills-wrapper" class="mt-1 space-y-2">
                             @foreach (old('competences_requises', $offre->competences_requises ?? []) as $skill)
                                 <div class="flex items-center gap-2">
                                     <input type="text" name="competences_requises[]" value="{{ $skill }}" required
-                                        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <button type="button" class="remove-skill text-red-500 hover:text-red-700 font-bold px-2">✕</button>
+                                        class="w-full border-warm-300 focus:border-brand-500 focus:ring-brand-500 rounded-md shadow-sm">
+                                    <button type="button" class="remove-skill text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                                 </div>
                             @endforeach
                         </div>
-                        <button type="button" id="add-skill" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mt-2">+ Ajouter une compétence</button>
-                        @error('competences_requises')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <button type="button" id="add-skill" class="text-sm text-brand-600 hover:text-brand-700 underline underline-offset-2 mt-2">+ Ajouter une compétence</button>
+                        <x-input-error :messages="$errors->get('competences_requises')" class="mt-2" />
                     </div>
 
                     <div>
-                        <label for="experience_min" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expérience minimale (années)</label>
-                        <input type="number" name="experience_min" id="experience_min" value="{{ old('experience_min', $offre->experience_min) }}" min="0" max="50" required
-                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('experience_min')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <x-input-label for="experience_min" :value="__('Expérience minimale (années)')" />
+                        <x-text-input id="experience_min" class="block mt-1 w-full" type="number" name="experience_min" :value="old('experience_min', $offre->experience_min)" min="0" max="50" required />
+                        <x-input-error :messages="$errors->get('experience_min')" class="mt-2" />
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                            Enregistrer
-                        </button>
-                        <a href="{{ route('offres.show', $offre) }}" class="text-sm text-gray-600 dark:text-gray-400 underline underline-offset-2 hover:text-gray-900 dark:hover:text-gray-100">Annuler</a>
+                        <x-primary-button>{{ __('Enregistrer') }}</x-primary-button>
+                        <a href="{{ route('offres.show', $offre) }}" class="text-sm text-warm-500 hover:text-brand-600 underline underline-offset-2">Annuler</a>
                     </div>
                 </form>
             </div>
@@ -75,8 +61,8 @@
             div.className = 'flex items-center gap-2';
             div.innerHTML = `
                 <input type="text" name="competences_requises[]" required
-                    class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <button type="button" class="remove-skill text-red-500 hover:text-red-700 font-bold px-2">✕</button>
+                    class="w-full border-warm-300 focus:border-brand-500 focus:ring-brand-500 rounded-md shadow-sm">
+                <button type="button" class="remove-skill text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
             `;
             wrapper.appendChild(div);
         });

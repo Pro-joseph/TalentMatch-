@@ -1,39 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Nouveau candidat
-        </h2>
+        <h2 class="font-display text-2xl font-semibold text-warm-900">Nouveau candidat</h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="card">
                 <form method="POST" action="{{ route('candidats.store') }}" class="space-y-6">
                     @csrf
 
                     <div>
-                        <label for="nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom</label>
-                        <input type="text" name="nom" id="nom" value="{{ old('nom') }}" required
-                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @error('nom')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <x-input-label for="nom" :value="__('Nom')" />
+                        <x-text-input id="nom" class="block mt-1 w-full" type="text" name="nom" :value="old('nom')" required />
+                        <x-input-error :messages="$errors->get('nom')" class="mt-2" />
                     </div>
 
                     <div>
-                        <label for="cv_texte" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Texte du CV</label>
-                        <textarea name="cv_texte" id="cv_texte" rows="15" required
-                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm">{{ old('cv_texte') }}</textarea>
-                        @error('cv_texte')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <x-input-label for="cv_texte" :value="__('Texte du CV')" />
+                        <textarea id="cv_texte" name="cv_texte" rows="15" required
+                            class="block mt-1 w-full border-warm-300 focus:border-brand-500 focus:ring-brand-500 rounded-md shadow-sm font-mono text-sm">{{ old('cv_texte') }}</textarea>
+                        <x-input-error :messages="$errors->get('cv_texte')" class="mt-2" />
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white">
-                            Enregistrer
-                        </button>
-                        <a href="{{ route('candidats.index') }}" class="text-sm text-gray-600 dark:text-gray-400 underline underline-offset-2 hover:text-gray-900 dark:hover:text-gray-100">Annuler</a>
+                        <x-primary-button>{{ __('Enregistrer') }}</x-primary-button>
+                        <a href="{{ route('candidats.index') }}" class="text-sm text-warm-500 hover:text-brand-600 underline underline-offset-2">Annuler</a>
                     </div>
                 </form>
             </div>
