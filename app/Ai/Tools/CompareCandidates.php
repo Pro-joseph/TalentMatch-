@@ -18,8 +18,8 @@ class CompareCandidates implements Tool
 
     public function handle(Request $request): Stringable|string
     {
-        $offre = Offre::findOrFail($request->input('offre_id'));
-        $candidateIds = $request->input('candidat_ids', []);
+        $offre = Offre::findOrFail($request->integer('offre_id'));
+        $candidateIds = $request->array('candidat_ids');
 
         $analyses = Analyse::with('candidat')
             ->where('offre_id', $offre->id)

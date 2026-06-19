@@ -16,6 +16,7 @@ services:
     build: .
     volumes:
       - .:/var/www
+      - /var/www/vendor
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
       - ./docker/php/fpm.conf:/usr/local/etc/php-fpm.d/custom.conf
     depends_on:
@@ -35,6 +36,19 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - app_network
+
+  queue-worker:
+    build: .
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+      - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - app_network
+    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=0
 
   redis:
     image: redis:7-alpine

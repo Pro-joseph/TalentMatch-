@@ -22,6 +22,6 @@ Route::middleware('auth')->group(function () {
     Route::get('assistant/creer', [AgentConversationController::class, 'create'])->name('agent-conversations.create');
     Route::post('assistant', [AgentConversationController::class, 'store'])->name('agent-conversations.store');
     Route::get('assistant/{id}', [AgentConversationController::class, 'show'])->name('agent-conversations.show');
-    Route::post('assistant/{id}/message', [AgentConversationController::class, 'message'])->name('agent-conversations.message');
+    Route::match(['GET', 'POST'], 'assistant/{id}/message', [AgentConversationController::class, 'message'])->name('agent-conversations.message');
     Route::delete('assistant/{id}', [AgentConversationController::class, 'destroy'])->name('agent-conversations.destroy');
 });

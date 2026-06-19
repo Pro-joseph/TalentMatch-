@@ -1,26 +1,48 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-display text-2xl font-semibold text-warm-900">Candidats</h2>
-            <a href="{{ route('candidats.create') }}" class="inline-flex items-center px-4 py-2 bg-brand-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                + Nouveau candidat
+            <div>
+                <h1 class="page-title">Candidats</h1>
+                <p class="page-subtitle">{{ $candidats->count() }} candidat(s)</p>
+            </div>
+            <a href="{{ route('candidats.create') }}" class="btn-primary shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nouveau candidat
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             @if ($candidats->isEmpty())
-                <div class="card-plain text-warm-500">
-                    Aucun candidat pour le moment.
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="w-7 h-7 text-warm-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <h3 class="empty-state-title">Aucun candidat pour le moment</h3>
+                    <p class="empty-state-text">Ajoutez votre premier candidat pour commencer les analyses.</p>
+                    <a href="{{ route('candidats.create') }}" class="btn-primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Ajouter un candidat
+                    </a>
                 </div>
             @else
-                <div class="grid gap-4">
-                    @foreach ($candidats as $candidat)
-                        <a href="{{ route('candidats.show', $candidat) }}" class="card hover:border-brand-300 transition-all">
-                            <h3 class="font-display text-lg font-semibold text-warm-900">{{ $candidat->nom }}</h3>
-                            <p class="text-sm text-warm-500 mt-1 line-clamp-2">{{ Str::limit($candidat->cv_texte, 200) }}</p>
-                            <p class="text-xs text-warm-400 mt-2">{{ $candidat->created_at->format('d/m/Y') }}</p>
+                <div class="grid gap-3">
+                    @foreach ($candidats as $i => $candidat)
+                        <a href="{{ route('candidats.show', $candidat) }}"
+                           class="card-hover flex items-center gap-4 animate-slide-up opacity-0"
+                           style="animation-fill-mode: forwards; animation-delay: {{ $i * 0.04 }}s">
+                            <div class="w-11 h-11 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 font-display font-semibold text-lg">
+                                {{ substr($candidat->nom, 0, 1) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-display font-semibold text-warm-900">{{ $candidat->nom }}</h3>
+                                <p class="text-sm text-warm-500 mt-0.5 line-clamp-1">{{ Str::limit($candidat->cv_texte, 120) }}</p>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <span class="text-xs text-warm-400">{{ $candidat->created_at->format('d/m/Y') }}</span>
+                            </div>
+                            <svg class="w-5 h-5 text-warm-300 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     @endforeach
                 </div>

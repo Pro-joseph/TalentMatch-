@@ -8,7 +8,6 @@ use App\Models\Candidat;
 use App\Models\Offre;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Laravel\Ai\Facades\Ai;
 
 class AnalyseCvJob implements ShouldQueue
 {
@@ -30,39 +29,44 @@ class AnalyseCvJob implements ShouldQueue
         );
 
         try {
-            $prompt = <<<PROMPT
-CV du candidat :
-{$this->candidat->cv_texte}
+            $competences = is_array($this->offre->competences_requises)
+                ? implode(', ', $this->offre->competences_requises)
+                : $this->offre->competences_requises;
 
-Offre d'emploi :
+            $prompt = <<<PROMPT
+Évalue dans quelle mesure ce candidat correspond à l'offre d'emploi.
+
+OFFRE D'EMPLOI :
 Titre : {$this->offre->titre}
 Description : {$this->offre->description}
-Compétences requises : {$this->offre->competences_requises}
+Compétences requises : {$competences}
 Expérience min : {$this->offre->experience_min} an(s)
+
+CV DU CANDIDAT :
+{$this->candidat->cv_texte}
+
+Compare le CV à l'offre ci-dessus. Calcule le score de matching, identifie les points forts et les lacunes par rapport à cette offre précise, et donne ta recommandation.
 PROMPT;
 
-            $result = Ai::chat()
-                ->agent(new CvAnalyzer)
-                ->messages($prompt)
-                ->execute();
+            $response = (new CvAnalyzer)->prompt($prompt);
 
             $analyse->update([
-                'competences_extraites' => $result['competences_extraites'] ?? null,
-                'annees_experience' => $result['annees_experience'] ?? null,
-                'niveau_etudes' => $result['niveau_etudes'] ?? null,
-                'langues' => $result['langues'] ?? null,
-                'matching_score' => $result['matching_score'] ?? null,
-                'points_forts' => $result['points_forts'] ?? null,
-                'lacunes' => $result['lacunes'] ?? null,
-                'competences_manquantes' => $result['competences_manquantes'] ?? null,
-                'recommandation' => $result['recommandation'] ?? null,
-                'justification' => $result['justification'] ?? null,
+                'competences_extraites' => $response['competences_extraites'] ?? null,
+                'annees_experience' => $response['annees_experience'] ?? null,
+                'niveau_etudes' => $response['niveau_etudes'] ?? null,
+                'langues' => $response['langues'] ?? null,
+                'matching_score' => $response['matching_score'] ?? null,
+                'points_forts' => $response['points_forts'] ?? null,
+                'lacunes' => $response['lacunes'] ?? null,
+                'competences_manquantes' => $response['competences_manquantes'] ?? null,
+                'recommandation' => $response['recommandation'] ?? null,
+                'justification' => $response['justification'] ?? null,
                 'status' => 'done',
             ]);
         } catch (\Throwable $e) {
             $analyse->update([
                 'status' => 'failed',
-                'justification' => $e->getMessage(),
+                'justification' => $e->getMessage()."\n".$e->getTraceAsString(),
             ]);
         }
     }

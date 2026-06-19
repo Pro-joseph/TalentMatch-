@@ -1,44 +1,66 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-display text-2xl font-semibold text-warm-900">Analyses &mdash; {{ $offre->titre }}</h2>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('offres.show', $offre) }}" class="btn-ghost p-1.5 -ml-1.5 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            </a>
+            <div>
+                <h1 class="page-title">Analyses</h1>
+                <p class="page-subtitle">{{ $offre->titre }}</p>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             @if ($analyses->isEmpty())
-                <div class="card-plain text-warm-500">
-                    Aucune analyse pour cette offre.
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="w-7 h-7 text-warm-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                    <h3 class="empty-state-title">Aucune analyse pour cette offre</h3>
+                    <p class="empty-state-text">Lancez une analyse depuis la page de l'offre.</p>
+                    <a href="{{ route('offres.show', $offre) }}" class="btn-primary">Voir l'offre</a>
                 </div>
             @else
-                <div class="space-y-4">
-                    @foreach ($analyses as $analyse)
-                        <div class="card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="font-display text-lg font-semibold text-warm-900">
-                                        {{ $analyse->candidat->nom }}
-                                    </h3>
-                                    <div class="flex flex-wrap items-center gap-4 mt-2 text-sm text-warm-500">
-                                        <span class="font-medium {{ $analyse->matching_score >= 70 ? 'text-emerald-600' : ($analyse->matching_score >= 40 ? 'text-amber-600' : 'text-red-600') }}">
-                                            Score: {{ $analyse->matching_score ?? '—' }}/100
-                                        </span>
-                                        <span>{{ $analyse->annees_experience }} an(s) exp.</span>
-                                        <span>{{ $analyse->niveau_etudes }}</span>
-                                        @if ($analyse->recommandation)
-                                            <span class="recommendation-badge-{{ $analyse->recommandation->value === 'recommandé' ? 'green' : ($analyse->recommandation->value === 'réservé' ? 'amber' : 'red') }}">
-                                                {{ $analyse->recommandation->label() }}
-                                            </span>
-                                        @endif
-                                        <span class="text-xs uppercase {{ $analyse->status === 'done' ? 'text-emerald-600' : ($analyse->status === 'failed' ? 'text-red-600' : 'text-amber-600') }}">
-                                            {{ $analyse->status }}
-                                        </span>
-                                    </div>
-                                </div>
-                                <a href="{{ route('analyses.show', $analyse) }}" class="text-sm text-brand-600 hover:text-brand-700 underline underline-offset-2">
-                                    Détail &rarr;
-                                </a>
+                <div class="grid gap-3">
+                    @foreach ($analyses as $i => $analyse)
+                        <a href="{{ route('analyses.show', $analyse) }}"
+                           class="card-hover flex items-center gap-4 animate-slide-up opacity-0"
+                           style="animation-fill-mode: forwards; animation-delay: {{ $i * 0.04 }}s">
+                            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-base font-bold shrink-0
+                                {{ $analyse->matching_score >= 70 ? 'bg-emerald-50 text-emerald-700' : ($analyse->matching_score >= 40 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700') }}">
+                                {{ $analyse->matching_score ?? '—' }}
+                                <span class="text-xs font-normal ml-0.5">/100</span>
                             </div>
-                        </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-3">
+                                    <h3 class="font-display font-semibold text-warm-900">{{ $analyse->candidat->nom }}</h3>
+                                    @if ($analyse->recommandation)
+                                        <span class="badge-{{ $analyse->recommandation->value === 'recommandé' ? 'emerald' : ($analyse->recommandation->value === 'réservé' ? 'amber' : 'red') }}">
+                                            {{ $analyse->recommandation->label() }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-4 mt-1.5 text-sm text-warm-500">
+                                    <span>{{ $analyse->annees_experience }} an(s) exp.</span>
+                                    <span>{{ $analyse->niveau_etudes }}</span>
+                                    @if ($analyse->status === 'pending')
+                                        <span class="flex items-center gap-1.5 text-amber-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse-soft"></span>
+                                            En cours
+                                        </span>
+                                    @elseif ($analyse->status === 'failed')
+                                        <span class="text-red-600">Échec</span>
+                                    @else
+                                        <span class="text-emerald-600">Terminé</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <svg class="w-5 h-5 text-warm-300 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </a>
                     @endforeach
                 </div>
 
@@ -46,10 +68,6 @@
                     {{ $analyses->links() }}
                 </div>
             @endif
-
-            <div>
-                <a href="{{ route('offres.show', $offre) }}" class="text-sm text-warm-500 hover:text-brand-600 underline underline-offset-2">&larr; Retour à l'offre</a>
-            </div>
         </div>
     </div>
 </x-app-layout>

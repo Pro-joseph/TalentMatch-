@@ -18,7 +18,7 @@ class GetCandidateAnalysis implements Tool
     public function handle(Request $request): Stringable|string
     {
         $analyse = Analyse::with(['offre', 'candidat'])
-            ->findOrFail($request->input('analyse_id'));
+            ->findOrFail($request->integer('analyse_id'));
 
         return json_encode([
             'candidat' => $analyse->candidat->nom,

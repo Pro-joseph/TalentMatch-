@@ -1,31 +1,36 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-display text-2xl font-semibold text-warm-900">Modifier &mdash; {{ $candidat->nom }}</h2>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('candidats.show', $candidat) }}" class="btn-ghost p-1.5 -ml-1.5 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            </a>
+            <h1 class="page-title">Modifier &mdash; {{ $candidat->nom }}</h1>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="card">
+    <div class="pb-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="card p-8">
                 <form method="POST" action="{{ route('candidats.update', $candidat) }}" class="space-y-6">
                     @csrf
                     @method('PUT')
 
                     <div>
-                        <x-input-label for="nom" :value="__('Nom')" />
-                        <x-text-input id="nom" class="block mt-1 w-full" type="text" name="nom" :value="old('nom', $candidat->nom)" required />
-                        <x-input-error :messages="$errors->get('nom')" class="mt-2" />
+                        <label for="nom" class="form-label">Nom</label>
+                        <input id="nom" class="form-input-xl" type="text" name="nom" :value="old('nom', $candidat->nom)" required />
+                        <x-input-error :messages="$errors->get('nom')" class="form-error" />
                     </div>
 
                     <div>
-                        <x-input-label for="cv_texte" :value="__('Texte du CV')" />
+                        <label for="cv_texte" class="form-label">Texte du CV</label>
                         <textarea id="cv_texte" name="cv_texte" rows="15" required
-                            class="block mt-1 w-full border-warm-300 focus:border-brand-500 focus:ring-brand-500 rounded-md shadow-sm font-mono text-sm">{{ old('cv_texte', $candidat->cv_texte) }}</textarea>
-                        <x-input-error :messages="$errors->get('cv_texte')" class="mt-2" />
+                            class="form-input-xl font-mono text-sm resize-y">{{ old('cv_texte', $candidat->cv_texte) }}</textarea>
+                        <x-input-error :messages="$errors->get('cv_texte')" class="form-error" />
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <x-primary-button>{{ __('Enregistrer') }}</x-primary-button>
-                        <a href="{{ route('candidats.show', $candidat) }}" class="text-sm text-warm-500 hover:text-brand-600 underline underline-offset-2">Annuler</a>
+                    <div class="flex items-center gap-4 pt-2">
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                        <a href="{{ route('candidats.show', $candidat) }}" class="btn-ghost">Annuler</a>
                     </div>
                 </form>
             </div>

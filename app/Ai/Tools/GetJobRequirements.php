@@ -17,7 +17,7 @@ class GetJobRequirements implements Tool
 
     public function handle(Request $request): Stringable|string
     {
-        $offre = Offre::findOrFail($request->input('offre_id'));
+        $offre = Offre::findOrFail($request->integer('offre_id'));
 
         return json_encode([
             'titre' => $offre->titre,

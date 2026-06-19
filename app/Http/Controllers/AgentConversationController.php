@@ -7,10 +7,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Laravel\Ai\Models\Conversation;
 use Illuminate\View\View;
 use Laravel\Ai\AnonymousAgent;
 use Laravel\Ai\Messages\AssistantMessage;
 use Laravel\Ai\Messages\UserMessage;
+use Laravel\Ai\Responses\AgentResponse;
 
 class AgentConversationController extends Controller
 {
@@ -26,12 +28,19 @@ class AgentConversationController extends Controller
 
     public function index(): View
     {
-        $conversations = DB::table($this->conversationsTable)
+        $conversations = Conversation::query()
             ->where('user_id', auth()->id())
+            ->withCount('messages')
+            ->with(['messages' => fn ($q) => $q->latest()->limit(1)])
             ->orderBy('updated_at', 'desc')
             ->paginate(20);
 
         return view('agent-conversations.index', compact('conversations'));
+    }
+
+    public function create(): View
+    {
+        return view('agent-conversations.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -53,9 +62,16 @@ class AgentConversationController extends Controller
 
         $this->storeMessage($conversationId, 'user', $data['message']);
 
-        $reply = $this->getAiReply($conversationId, $data['message']);
+        try {
+            $reply = $this->getAiReply($conversationId, $data['message']);
 
-        $this->storeMessage($conversationId, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
+            $this->storeMessage($conversationId, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
+        } catch (\Throwable $e) {
+            $this->storeMessage($conversationId, 'assistant', 'Désolé, le service d\'IA est temporairement indisponible. Veuillez réessayer plus tard.');
+
+            return to_route('agent-conversations.show', $conversationId)
+                ->with('error', 'Erreur lors de l\'appel à l\'IA : '.$e->getMessage());
+        }
 
         return to_route('agent-conversations.show', $conversationId)
             ->with('success', 'Conversation créée.');
@@ -78,6 +94,10 @@ class AgentConversationController extends Controller
 
     public function message(Request $request, string $id): RedirectResponse
     {
+        if ($request->isMethod('GET')) {
+            return to_route('agent-conversations.show', $id);
+        }
+
         $conversation = DB::table($this->conversationsTable)
             ->where('id', $id)
             ->where('user_id', auth()->id())
@@ -89,9 +109,19 @@ class AgentConversationController extends Controller
 
         $this->storeMessage($id, 'user', $data['message']);
 
-        $reply = $this->getAiReply($id, $data['message']);
+        try {
+            $reply = $this->getAiReply($id, $data['message']);
 
-        $this->storeMessage($id, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
+            $this->storeMessage($id, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
+        } catch (\Throwable $e) {
+            $this->storeMessage($id, 'assistant', 'Désolé, le service d\'IA est temporairement indisponible. Veuillez réessayer plus tard.');
+
+            DB::table($this->conversationsTable)
+                ->where('id', $id)
+                ->update(['updated_at' => now()]);
+
+            return back()->with('error', 'Erreur lors de l\'appel à l\'IA : '.$e->getMessage());
+        }
 
         DB::table($this->conversationsTable)
             ->where('id', $id)
@@ -134,7 +164,7 @@ class AgentConversationController extends Controller
         ]);
     }
 
-    protected function getAiReply(string $conversationId, string $newMessage): \Laravel\Ai\Contracts\AgentResponse
+    protected function getAiReply(string $conversationId, string $newMessage): AgentResponse
     {
         $history = DB::table($this->messagesTable)
             ->where('conversation_id', $conversationId)
