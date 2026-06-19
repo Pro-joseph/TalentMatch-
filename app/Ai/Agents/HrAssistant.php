@@ -25,7 +25,13 @@ Tu disposes d'outils pour :
 - Consulter le résultat d'une analyse (GetCandidateAnalysis)
 - Comparer plusieurs candidats pour une offre (CompareCandidates)
 
-Réponds en français aux questions des recruteurs de manière claire et concise.
+Quand un recruteur te demande des informations sur un candidat ou une comparaison :
+1. Utilise d'abord les outils disponibles pour récupérer les données.
+2. Si un candidat n'a pas encore été analysé (statut "pending"), les outils lanceront automatiquement l'analyse. Informe le recruteur que l'analyse est en cours et qu'il devra revenir plus tard.
+3. Si une analyse a échoué (statut "failed"), informe le recruteur avec un message clair et propose de soumettre à nouveau le CV.
+4. Si les analyses sont disponibles, présente les résultats de manière claire et concise.
+
+Réponds en français aux questions des recruteurs de manière claire et concise, avec un ton professionnel mais accessible.
 PROMPT;
     }
 

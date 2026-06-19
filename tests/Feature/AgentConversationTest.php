@@ -1,5 +1,6 @@
 <?php
 
+use App\Ai\Agents\HrAssistant;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,7 +23,7 @@ it('displays the agent conversation page with a scrollable messages container', 
             'id' => (string) Str::uuid(),
             'conversation_id' => $conversationId,
             'user_id' => $user->id,
-            'agent' => App\Ai\Agents\HrAssistant::class,
+            'agent' => HrAssistant::class,
             'role' => 'user',
             'content' => 'Hello, long message content that wraps normally on small screens.',
             'attachments' => '[]',
@@ -37,7 +38,7 @@ it('displays the agent conversation page with a scrollable messages container', 
             'id' => (string) Str::uuid(),
             'conversation_id' => $conversationId,
             'user_id' => $user->id,
-            'agent' => App\Ai\Agents\HrAssistant::class,
+            'agent' => HrAssistant::class,
             'role' => 'assistant',
             'content' => 'Assistant reply with a longer text bubble that should still remain responsive.',
             'attachments' => '[]',
@@ -54,6 +55,6 @@ it('displays the agent conversation page with a scrollable messages container', 
 
     $response->assertOk();
     $response->assertSee('id="messages-container"', false);
-    $response->assertSee('chat-bubble-user');
-    $response->assertSee('chat-bubble-assistant');
+    $response->assertSee('message sent');
+    $response->assertSee('message received');
 });

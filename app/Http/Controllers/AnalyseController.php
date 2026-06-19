@@ -6,6 +6,7 @@ use App\Jobs\AnalyseCvJob;
 use App\Models\Analyse;
 use App\Models\Candidat;
 use App\Models\Offre;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -45,5 +46,13 @@ class AnalyseController extends Controller
 
         return to_route('analyses.index', $offre)
             ->with('success', 'Analyse lancée. Rafraîchissez la page dans quelques instants.');
+    }
+
+    public function status(Analyse $analyse): JsonResponse
+    {
+        return response()->json([
+            'status' => $analyse->status,
+            'analyse_id' => $analyse->id,
+        ]);
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Offre extends Model
 {
     protected $fillable = [
+        'user_id',
         'titre',
         'description',
         'competences_requises',

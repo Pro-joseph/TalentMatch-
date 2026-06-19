@@ -26,11 +26,12 @@
     </x-slot>
 
     <div class="pb-16" x-data="{ loading: false, message: '' }">
-        <div class="w-fit mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
             <div class="card !p-0 overflow-hidden flex flex-col h-[600px]">
                 <div class="border-b border-slate-200/70 bg-slate-50/90 px-4 py-3 flex items-center justify-between">
                     <span class="text-sm font-medium text-slate-700">{{ $conversation->title }}</span>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
                         <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
                         En ligne
                     </span>
@@ -47,13 +48,15 @@
                                         <div class="text-[11px] text-slate-400 mb-1">🔧 Appels d'outils effectués</div>
                                     @endif
                                     <div>{!! str($msg->content)->markdown() !!}</div>
-                                    <span class="time">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</span>
+                                    <span
+                                        class="time">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</span>
                                 </div>
                             @else
                                 <div class="message sent animate-slide-up opacity-0"
                                     style="animation-fill-mode: forwards; animation-duration: 0.3s">
                                     <p>{{ $msg->content }}</p>
-                                    <span class="time">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</span>
+                                    <span
+                                        class="time">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</span>
                                 </div>
                             @endif
                         @empty

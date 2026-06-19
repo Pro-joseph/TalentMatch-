@@ -7,11 +7,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Laravel\Ai\Models\Conversation;
 use Illuminate\View\View;
 use Laravel\Ai\AnonymousAgent;
+use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Messages\AssistantMessage;
 use Laravel\Ai\Messages\UserMessage;
+use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Responses\AgentResponse;
 
 class AgentConversationController extends Controller
@@ -67,7 +68,9 @@ class AgentConversationController extends Controller
 
             $this->storeMessage($conversationId, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
         } catch (\Throwable $e) {
-            $this->storeMessage($conversationId, 'assistant', 'Désolé, le service d\'IA est temporairement indisponible. Veuillez réessayer plus tard.');
+            $message = $this->friendlyAiErrorMessage($e);
+
+            $this->storeMessage($conversationId, 'assistant', $message);
 
             return to_route('agent-conversations.show', $conversationId)
                 ->with('error', 'Erreur lors de l\'appel à l\'IA : '.$e->getMessage());
@@ -114,7 +117,9 @@ class AgentConversationController extends Controller
 
             $this->storeMessage($id, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
         } catch (\Throwable $e) {
-            $this->storeMessage($id, 'assistant', 'Désolé, le service d\'IA est temporairement indisponible. Veuillez réessayer plus tard.');
+            $message = $this->friendlyAiErrorMessage($e);
+
+            $this->storeMessage($id, 'assistant', $message);
 
             DB::table($this->conversationsTable)
                 ->where('id', $id)
@@ -186,6 +191,21 @@ class AgentConversationController extends Controller
             tools: (new HrAssistant)->tools(),
         );
 
-        return $agent->prompt($newMessage);
+        return $agent->prompt(
+            $newMessage,
+            provider: Lab::Groq,
+            model: 'openai/gpt-oss-120b',
+        );
+    }
+
+    protected function friendlyAiErrorMessage(\Throwable $e): string
+    {
+        return match (true) {
+            str_contains($e->getMessage(), 'rate limit') || str_contains($e->getMessage(), 'Rate limit') => 'Limite de débit de l\'API IA atteinte. Veuillez patienter quelques instants puis réessayer.',
+            str_contains($e->getMessage(), 'overloaded') || str_contains($e->getMessage(), 'Overloaded') => 'Le service d\'IA est temporairement surchargé. Veuillez réessayer dans quelques instants.',
+            str_contains($e->getMessage(), 'insufficient credits') || str_contains($e->getMessage(), 'Insufficient') => 'Crédits IA insuffisants. Veuillez contacter l\'administrateur.',
+            str_contains($e->getMessage(), 'does not support') => 'Le modèle d\'IA utilisé ne supporte pas cette fonctionnalité. Veuillez contacter l\'administrateur.',
+            default => 'Désolé, le service d\'IA est temporairement indisponible. Veuillez réessayer plus tard.',
+        };
     }
 }
