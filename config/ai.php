@@ -32,6 +32,13 @@ return [
         'groq' => [
             'driver' => 'groq',
             'key' => env('GROQ_API_KEY'),
+            'models' => [
+                'text' => [
+                    'default' => 'openai/gpt-oss-120b',
+                    'cheapest' => 'openai/gpt-oss-20b',
+                    'smartest' => 'openai/gpt-oss-120b',
+                ],
+            ],
         ],
 
         'openai' => [

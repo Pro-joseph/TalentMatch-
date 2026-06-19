@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('candidats', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->string('nom');
-    $table->longText('cv_texte');
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('nom');
+            $table->longText('cv_texte');
+            $table->timestamps();
+        });
     }
 
     /**

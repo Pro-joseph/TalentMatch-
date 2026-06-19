@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Offre extends Model
 {
     protected $fillable = [
+        'user_id',
         'titre',
         'description',
         'competences_requises',
@@ -25,5 +27,10 @@ class Offre extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function analyses(): HasMany
+    {
+        return $this->hasMany(Analyse::class);
     }
 }
