@@ -1,58 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TalentMatch
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application web de matching CV-offre d'emploi avec analyse IA. Gère les offres, les candidats, et l'analyse automatique des CV via l'API Groq.
 
-## About Laravel
+## Architecture MVC
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Couche | Composants |
+|--------|-----------|
+| **Models** | `Offre`, `Candidat`, `Analyse`, `User` |
+| **Controllers** | `OffreController`, `CandidatController`, `AnalyseController`, `DashboardController`, `AgentConversationController` |
+| **Views** | Blade + Tailwind CSS 3 + Alpine.js |
+| **AI agents** | `ComparativeAnalyzer`, `HrAssistant` + outils (`GetCandidateAnalysis`, `CompareCandidates`, `GetJobRequirements`) |
+| **Jobs** | `AnalyseCvJob` (file d'attente Redis) |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fonctionnalités
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Offres d'emploi** — CRUD complet avec titre, description, compétences requises, expérience minimum
+- **Candidats** — Ajout de CV (texte) pour chaque candidat
+- **Analyse IA** — Analyse automatique des CV via Groq (matching score, compétences extraites, expérience, niveau d'études, forces/faiblesses, recommandation)
+- **Comparaison** — Tableau comparatif de 2 à 15 candidats, classé par score, avec verdict IA généré à la demande
+- **Assistant RH** — Chat conversationnel avec agent IA pouvant consulter les offres, analyses et comparer des candidats
+- **Dashboard** — Statistiques : nombre d'offres, candidats, analyses effectuées, score moyen
 
-## Learning Laravel
+## Stack technique
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Backend** : PHP 8.4, Laravel 13, MySQL/Redis
+- **Frontend** : Blade, Tailwind CSS 3, Alpine.js, Vite
+- **IA** : `laravel/ai` SDK (fournisseur Groq, modèle `openai/gpt-oss-120b`)
+- **File d'attente** : Redis (analyse asynchrone des CV)
+- **Tests** : Pest PHP 4
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Prérequis
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- PHP 8.3+
+- Composer
+- Node.js 20+
+- MySQL ou SQLite
+- Redis (pour la file d'attente)
+- Clé API Groq (https://console.groq.com)
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
 
 ```bash
-composer require laravel/boost --dev
+# 1. Cloner le dépôt
+git clone <url-du-depot> talentmatch
+cd talentmatch
 
-php artisan boost:install
+# 2. Installer les dépendances PHP
+composer install
+
+# 3. Configuration
+cp .env.example .env
+php artisan key:generate
+
+# 4. Configurer .env
+#    - Base de données (DB_HOST, DB_DATABASE, etc.)
+#    - Redis (QUEUE_CONNECTION=redis, REDIS_HOST, etc.)
+#    - Clé API Groq (GROQ_API_KEY)
+
+# 5. Migrations
+php artisan migrate
+
+# 6. Installer les dépendances frontend
+npm install
+npm run build
+
+# 7. Lancer l'application (4 processus simultanés)
+composer run dev
+#   → Serveur HTTP : http://localhost:8000
+#   → File d'attente : queue:listen
+#   → Logs : pail
+#   → Vite : hot reload
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Tests
 
-## Contributing
+```bash
+php artisan test
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Structure du projet (app/)
 
-## Code of Conduct
+```
+app/
+├── Ai/
+│   ├── Agents/
+│   │   ├── ComparativeAnalyzer.php   # Agent pour verdict comparatif
+│   │   └── HrAssistant.php           # Agent assistant RH conversationnel
+│   └── Tools/
+│       ├── CompareCandidates.php      # Outil de comparaison
+│       ├── GetCandidateAnalysis.php   # Récupération d'analyse
+│       └── GetJobRequirements.php     # Consultation d'offre
+├── Http/
+│   ├── Controllers/
+│   │   ├── OffreController.php
+│   │   ├── CandidatController.php
+│   │   ├── AnalyseController.php
+│   │   ├── DashboardController.php
+│   │   └── AgentConversationController.php
+│   └── Requests/
+│       └── StoreOffreRequest.php
+├── Jobs/
+│   └── AnalyseCvJob.php               # Analyse asynchrone CV→IA
+└── Models/
+    ├── Offre.php
+    ├── Candidat.php
+    ├── Analyse.php
+    └── User.php
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Captures d'écran (idées)
 
-## Security Vulnerabilities
+> *Ajoutez ici des captures de l'interface — dashboard, fiche offre, comparaison, assistant RH.*
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Licence
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
