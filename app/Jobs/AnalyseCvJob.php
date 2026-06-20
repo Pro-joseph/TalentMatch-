@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Ai\Agents\CvAnalyzer;
+use App\Events\AnalysisCompleted;
 use App\Models\Analyse;
 use App\Models\Candidat;
 use App\Models\Offre;
@@ -63,11 +64,22 @@ PROMPT;
                 'justification' => $response['justification'] ?? null,
                 'status' => 'done',
             ]);
+
+            event(new AnalysisCompleted($analyse));
         } catch (\Throwable $e) {
+            $msg = $e->getMessage();
+
             $analyse->update([
                 'status' => 'failed',
-                'justification' => $e->getMessage()."\n".$e->getTraceAsString(),
+                'justification' => match (true) {
+                    str_contains($msg, 'rate limit') || str_contains($msg, 'Rate limit') || str_contains($msg, 'RateLimited') => 'Limite de débit de l\'API IA atteinte. Veuillez patienter quelques instants puis relancer l\'analyse.',
+                    str_contains($msg, 'overloaded') || str_contains($msg, 'Overloaded') => 'Le service d\'IA est temporairement surchargé. Veuillez réessayer plus tard.',
+                    str_contains($msg, 'insufficient credits') || str_contains($msg, 'Insufficient') => 'Crédits IA insuffisants. Veuillez contacter l\'administrateur.',
+                    default => 'L\'analyse a échoué pour une raison inattendue. Veuillez réessayer.',
+                },
             ]);
+
+            event(new AnalysisCompleted($analyse));
         }
     }
 }

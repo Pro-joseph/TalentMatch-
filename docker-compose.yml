@@ -55,6 +55,23 @@ services:
     networks:
       - app_network
 
+  reverb:
+    build: .
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+      - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - app_network
+    ports:
+      - "8081:8080"
+    command: php artisan reverb:start --debug
+    dns:
+      - 127.0.0.11
+
   phpmyadmin:   
     image: phpmyadmin/phpmyadmin
     container_name: laravel_phpmyadmin

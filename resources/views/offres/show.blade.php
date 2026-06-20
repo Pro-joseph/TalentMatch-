@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $pendingAnalyses = $analyses->where('status', 'pending');
+        $pendingIds = $pendingAnalyses->pluck('id');
+        $statusUrls = $pendingIds->mapWithKeys(fn ($id) => [$id => route('analyses.status', $id)]);
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -20,7 +26,32 @@
         </div>
     </x-slot>
 
-    <div class="py-8 md:py-10">
+    <div class="py-8 md:py-10"
+         x-data="{
+             statusUrls: @json($statusUrls),
+             pendingIds: @json($pendingIds),
+         }"
+         x-init="
+             if (pendingIds.length > 0) {
+                 pendingIds.forEach(id => {
+                     let url = statusUrls[id];
+                     setInterval(async () => {
+                         try {
+                             let res = await fetch(url);
+                             let data = await res.json();
+                             if (data.status !== 'pending') window.location.reload();
+                         } catch (e) {}
+                     }, 4000);
+                     try {
+                         Echo.private('analyses.' + id)
+                             .listen('.AnalysisCompleted', () => window.location.reload());
+                     } catch (e) {
+                         console.warn('Echo non disponible', e);
+                     }
+                 });
+             }
+         ">
+
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
             <!-- Offer criteria -->

@@ -25,7 +25,15 @@
         </div>
     </x-slot>
 
-    <div class="pb-16" x-data="{ loading: false, message: '' }">
+    <div class="pb-16" x-data="{ loading: false, message: '' }"
+         x-init="
+             try {
+                 Echo.private('conversations.{{ $conversation->id }}')
+                     .listen('.ConversationMessageAdded', () => window.location.reload());
+             } catch (e) {
+                 console.warn('Echo non disponible', e);
+             }
+         ">
         <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
             <div class="card !p-0 overflow-hidden flex flex-col h-[600px]">
                 <div class="border-b border-slate-200/70 bg-slate-50/90 px-4 py-3 flex items-center justify-between">
