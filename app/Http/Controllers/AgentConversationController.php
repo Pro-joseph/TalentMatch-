@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Ai\Agents\HrAssistant;
+use App\Events\ConversationMessageAdded;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,10 +68,25 @@ class AgentConversationController extends Controller
             $reply = $this->getAiReply($conversationId, $data['message']);
 
             $this->storeMessage($conversationId, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
+
+            ConversationMessageAdded::dispatch(
+                conversationId: $conversationId,
+                content: $reply->text,
+                role: 'assistant',
+                createdAt: now()->toIso8601String(),
+                toolCalls: $reply->toolCalls?->toJson(),
+            );
         } catch (\Throwable $e) {
             $message = $this->friendlyAiErrorMessage($e);
 
             $this->storeMessage($conversationId, 'assistant', $message);
+
+            ConversationMessageAdded::dispatch(
+                conversationId: $conversationId,
+                content: $message,
+                role: 'assistant',
+                createdAt: now()->toIso8601String(),
+            );
 
             return to_route('agent-conversations.show', $conversationId)
                 ->with('error', 'Erreur lors de l\'appel à l\'IA : '.$e->getMessage());
@@ -116,10 +132,25 @@ class AgentConversationController extends Controller
             $reply = $this->getAiReply($id, $data['message']);
 
             $this->storeMessage($id, 'assistant', $reply->text, $reply->toolCalls?->toJson(), $reply->toolResults?->toJson());
+
+            ConversationMessageAdded::dispatch(
+                conversationId: $id,
+                content: $reply->text,
+                role: 'assistant',
+                createdAt: now()->toIso8601String(),
+                toolCalls: $reply->toolCalls?->toJson(),
+            );
         } catch (\Throwable $e) {
             $message = $this->friendlyAiErrorMessage($e);
 
             $this->storeMessage($id, 'assistant', $message);
+
+            ConversationMessageAdded::dispatch(
+                conversationId: $id,
+                content: $message,
+                role: 'assistant',
+                createdAt: now()->toIso8601String(),
+            );
 
             DB::table($this->conversationsTable)
                 ->where('id', $id)

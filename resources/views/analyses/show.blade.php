@@ -18,7 +18,21 @@
         </div>
     </x-slot>
 
-    <div class="py-8 md:py-10">
+    <div class="py-8 md:py-10"
+         x-data="{ status: '{{ $analyse->status }}', statusUrl: '{{ route('analyses.status', $analyse) }}' }"
+         x-init="if (status === 'pending') {
+             let poll = setInterval(async () => {
+                 let res = await fetch(statusUrl);
+                 let data = await res.json();
+                 if (data.status !== 'pending') window.location.reload();
+             }, 3000);
+             try {
+                 Echo.private('analyses.{{ $analyse->id }}')
+                     .listen('.AnalysisCompleted', () => window.location.reload());
+             } catch (e) {
+                 console.warn('Echo non disponible, polling uniquement', e);
+             }
+         }">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
             @if ($analyse->status === 'failed')
@@ -28,16 +42,90 @@
                         <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p class="text-sm text-red-700">L'analyse a échoué : {{ $analyse->justification }}</p>
+                        <p class="text-sm text-red-700">{{ $analyse->justification }}</p>
                     </div>
                 </div>
 
             @elseif ($analyse->status === 'pending')
 
-                <div class="card !p-0 overflow-hidden">
-                    <div class="flex items-center gap-3 p-5 bg-amber-50">
-                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <p class="text-sm text-amber-700">Analyse en cours... Revenez dans quelques instants.</p>
+                <!-- Skeleton: Score + Recommendation -->
+                <div class="card !p-0 overflow-hidden animate-pulse">
+                    <div class="flex items-center gap-6 p-5 sm:p-6">
+                        <div class="w-[72px] h-[72px] rounded-full bg-slate-200 shrink-0"></div>
+                        <div class="flex-1 min-w-0 space-y-3">
+                            <div class="h-5 bg-slate-200 rounded w-48"></div>
+                            <div class="h-4 bg-slate-200 rounded w-full max-w-md"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skeleton: Extracted info -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-pulse">
+                    <div class="card !p-5 space-y-2">
+                        <div class="h-3 bg-slate-200 rounded w-20"></div>
+                        <div class="h-5 bg-slate-200 rounded w-16"></div>
+                    </div>
+                    <div class="card !p-5 space-y-2">
+                        <div class="h-3 bg-slate-200 rounded w-20"></div>
+                        <div class="h-5 bg-slate-200 rounded w-24"></div>
+                    </div>
+                    <div class="card !p-5 col-span-2 space-y-2">
+                        <div class="h-3 bg-slate-200 rounded w-14"></div>
+                        <div class="flex gap-3">
+                            <div class="h-4 bg-slate-200 rounded w-16"></div>
+                            <div class="h-4 bg-slate-200 rounded w-20"></div>
+                            <div class="h-4 bg-slate-200 rounded w-14"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skeleton: Skills -->
+                <div class="card !p-5 space-y-3 animate-pulse">
+                    <div class="h-3 bg-slate-200 rounded w-36"></div>
+                    <div class="flex gap-2">
+                        <div class="h-7 bg-slate-200 rounded-full w-20"></div>
+                        <div class="h-7 bg-slate-200 rounded-full w-28"></div>
+                        <div class="h-7 bg-slate-200 rounded-full w-24"></div>
+                        <div class="h-7 bg-slate-200 rounded-full w-16"></div>
+                    </div>
+                </div>
+
+                <!-- Skeleton: Strengths / Lacunes / Missing -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-pulse">
+                    <div class="card !p-5 border-t-2 border-t-slate-200 space-y-3">
+                        <div class="h-3 bg-slate-200 rounded w-24"></div>
+                        <div class="space-y-2">
+                            <div class="h-4 bg-slate-200 rounded w-full"></div>
+                            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-slate-200 rounded w-5/6"></div>
+                        </div>
+                    </div>
+                    <div class="card !p-5 border-t-2 border-t-slate-200 space-y-3">
+                        <div class="h-3 bg-slate-200 rounded w-16"></div>
+                        <div class="space-y-2">
+                            <div class="h-4 bg-slate-200 rounded w-full"></div>
+                            <div class="h-4 bg-slate-200 rounded w-2/3"></div>
+                        </div>
+                    </div>
+                    <div class="card !p-5 border-t-2 border-t-slate-200 space-y-3">
+                        <div class="h-3 bg-slate-200 rounded w-36"></div>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="h-6 bg-slate-200 rounded-full w-20"></div>
+                            <div class="h-6 bg-slate-200 rounded-full w-28"></div>
+                            <div class="h-6 bg-slate-200 rounded-full w-16"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skeleton: Justification -->
+                <div class="card !p-5 space-y-2 animate-pulse">
+                    <div class="h-3 bg-slate-200 rounded w-28 mb-3"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-slate-200 rounded w-full"></div>
+                        <div class="h-4 bg-slate-200 rounded w-5/6"></div>
+                        <div class="h-4 bg-slate-200 rounded w-4/6"></div>
+                        <div class="h-4 bg-slate-200 rounded w-full"></div>
+                        <div class="h-4 bg-slate-200 rounded w-3/4"></div>
                     </div>
                 </div>
 
