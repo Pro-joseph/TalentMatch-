@@ -16,4 +16,14 @@ class CandidatPolicy
     {
         return true;
     }
+
+    public function update(User $user, Candidat $candidat): bool
+    {
+        return $user->id === $candidat->user_id;
+    }
+
+    public function delete(User $user, Candidat $candidat): bool
+    {
+        return $user->id === $candidat->user_id;
+    }
 }

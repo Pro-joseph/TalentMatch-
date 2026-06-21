@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Candidat extends Model
 {
     protected $fillable = [
-        'user_id',
         'nom',
         'cv_texte',
+        'user_id',
     ];
 
     public function user(): BelongsTo

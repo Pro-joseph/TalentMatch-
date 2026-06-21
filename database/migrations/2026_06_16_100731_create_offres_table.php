@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('offres', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->string('titre');
-    $table->text('description');
-    $table->json('competences_requises');
-    $table->integer('experience_min')->default(0);
-    $table->timestamps();
-});
+        Schema::create('offres', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('titre');
+            $table->text('description');
+            $table->json('competences_requises');
+            $table->integer('experience_min')->default(0);
+            $table->timestamps();
+        });
     }
 
     /**

@@ -3,24 +3,34 @@
 namespace App\Events;
 
 use App\Models\Analyse;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class AnalysisCompleted implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Analyse $analyse;
-
-    public function __construct(Analyse $analyse)
-    {
-        $this->analyse = $analyse;
+    public function __construct(
+        public Analyse $analyse,
+    ) {
+        //
     }
 
-    public function broadcastOn(): Channel
+    public function broadcastOn(): array
     {
-        return new Channel('analyses.'.$this->analyse->id);
+        return [
+            new PrivateChannel('analyses.'.$this->analyse->id),
+        ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'status' => $this->analyse->status,
+            'analyse_id' => $this->analyse->id,
+        ];
     }
 }

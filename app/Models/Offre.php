@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Offre extends Model
 {
     protected $fillable = [
+        'user_id',
         'titre',
         'description',
         'competences_requises',
@@ -31,10 +32,5 @@ class Offre extends Model
     public function analyses(): HasMany
     {
         return $this->hasMany(Analyse::class);
-    }
-
-    public function candidats(): HasMany
-    {
-        return $this->hasMany(Candidat::class);
     }
 }

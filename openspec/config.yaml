@@ -1,20 +1,30 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Tech stack: PHP 8.3, Laravel 13, MySQL 8.4, Redis, Docker (nginx + php-fpm + mysql + redis)
+  AI SDK: laravel/ai with Groq provider (llama-3.3-70b-versatile)
+  Auth: Laravel Breeze (Blade)
+  Testing: Pest
+  Queue: Redis driver
+  
+  Domain: TalentMatch — HR pre-screening app
+  - Offre: job posting (titre, description, competences_requises JSON, experience_min)
+  - Candidat: CV submission (nom, cv_texte, user_id)
+  - Analyse: AI analysis result with structured output (matching_score 0-100, recommandation enum: convoquer|attente|rejeter, points_forts/lacunes/competences_manquantes JSON arrays, justification)
+  - AgentConversation + AgentConversationMessage: persisted chat with HR assistant
+  
+  Conventions:
+  - Models in app/Models, Agents in app/Ai/Agents, Tools in app/Ai/Tools
+  - All AI analysis dispatched via AnalyseCvJob (queue: default)
+  - Eloquent casts: recommandation → App\Enums\Recommandation (BackedEnum), all JSON fields → array
+  - FormRequests for all user input
+  - No N+1 queries (use eager loading)
+  - French variable names for domain models (offre, candidat, analyse)
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Always include a "Non-goals" section
+    - Specify which Laravel concepts are used (Jobs, Casts, Tools, etc.)
+  tasks:
+    - Each task max 1 hour of work
+    - Always mention the file to create or modify

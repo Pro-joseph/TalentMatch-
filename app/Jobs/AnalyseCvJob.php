@@ -51,11 +51,6 @@ PROMPT;
 
             $response = (new CvAnalyzer)->prompt($prompt);
 
-            $recommandation = $response['recommandation'] ?? null;
-            if ($recommandation !== null && ! in_array($recommandation, ['recommandé', 'réservé', 'déconseillé', 'non_retenu'], true)) {
-                $recommandation = 'réservé';
-            }
-
             $analyse->update([
                 'competences_extraites' => $response['competences_extraites'] ?? null,
                 'annees_experience' => $response['annees_experience'] ?? null,
@@ -65,15 +60,12 @@ PROMPT;
                 'points_forts' => $response['points_forts'] ?? null,
                 'lacunes' => $response['lacunes'] ?? null,
                 'competences_manquantes' => $response['competences_manquantes'] ?? null,
-                'recommandation' => $recommandation,
+                'recommandation' => $response['recommandation'] ?? null,
                 'justification' => $response['justification'] ?? null,
                 'status' => 'done',
             ]);
 
-            try {
-                event(new AnalysisCompleted($analyse));
-            } catch (\Throwable) {
-            }
+            event(new AnalysisCompleted($analyse));
         } catch (\Throwable $e) {
             $msg = $e->getMessage();
 

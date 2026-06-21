@@ -33,8 +33,6 @@ class Analyse extends Model
             'lacunes' => 'array',
             'competences_manquantes' => 'array',
             'recommandation' => Recommandation::class,
-            'matching_score' => 'integer',
-            'annees_experience' => 'integer',
         ];
     }
 

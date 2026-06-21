@@ -2,8 +2,8 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 
@@ -19,8 +19,25 @@ class ConversationMessageAdded implements ShouldBroadcast
         public ?string $toolCalls = null,
     ) {}
 
-    public function broadcastOn(): Channel
+    public function broadcastOn(): array
     {
-        return new Channel('conversations.'.$this->conversationId);
+        return [
+            new PrivateChannel('conversations.'.$this->conversationId),
+        ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'content' => $this->content,
+            'role' => $this->role,
+            'created_at' => $this->createdAt,
+            'tool_calls' => $this->toolCalls,
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'ConversationMessageAdded';
     }
 }
