@@ -2,6 +2,7 @@
 
 namespace App\Ai\Tools;
 
+use App\Models\Offre;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
@@ -9,29 +10,31 @@ use Stringable;
 
 class GetJobRequirements implements Tool
 {
-    /**
-     * Get the description of the tool's purpose.
-     */
     public function description(): Stringable|string
     {
-        return 'A description of the tool.';
+        return 'Récupère les exigences détaillées d\'une offre d\'emploi (titre, description, compétences requises, expérience minimum). Utilise le titre de l\'offre pour la trouver.';
     }
 
-    /**
-     * Execute the tool.
-     */
     public function handle(Request $request): Stringable|string
     {
-        //
+        $offre = Offre::where('titre', 'LIKE', '%'.$request['titre'].'%')->first();
+
+        if (! $offre) {
+            return json_encode(['error' => 'Aucune offre trouvée avec ce titre.']);
+        }
+
+        return json_encode([
+            'titre' => $offre->titre,
+            'description' => $offre->description,
+            'competences_requises' => $offre->competences_requises,
+            'experience_min' => $offre->experience_min,
+        ]);
     }
 
-    /**
-     * Get the tool's schema definition.
-     */
     public function schema(JsonSchema $schema): array
     {
         return [
-            'value' => $schema->string()->required(),
+            'titre' => $schema->string()->required(),
         ];
     }
 }

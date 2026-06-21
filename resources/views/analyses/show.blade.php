@@ -42,7 +42,11 @@
                         <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p class="text-sm text-red-700">{{ $analyse->justification }}</p>
+                        <p class="text-sm text-red-700 flex-1">{{ $analyse->justification }}</p>
+                        <form method="POST" action="{{ route('analyses.retry', $analyse) }}" class="shrink-0">
+                            @csrf
+                            <button type="submit" class="btn-primary btn-sm">Réessayer</button>
+                        </form>
                     </div>
                 </div>
 

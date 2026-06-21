@@ -16,6 +16,9 @@ services:
     build: .
     volumes:
       - .:/var/www
+      - vendor_data:/var/www/vendor
+      - storage_data:/var/www/storage
+      - ./docker/php/opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
     depends_on:
       - mysql
       - redis
@@ -39,6 +42,38 @@ services:
     networks:
       - app_network
 
+  queue-worker:
+    build: .
+    image: talentmatch-php
+    volumes:
+      - .:/var/www
+      - vendor_data:/var/www/vendor
+      - storage_data:/var/www/storage
+      - ./docker/php/opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - app_network
+    command: php artisan queue:work redis --queue=default --sleep=3 --tries=3
+
+  reverb:
+    build: .
+    image: talentmatch-php
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/var/www
+      - vendor_data:/var/www/vendor
+      - storage_data:/var/www/storage
+      - ./docker/php/opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - app_network
+    command: php artisan reverb:start --host=0.0.0.0 --port=8081
+
   phpmyadmin:   
     image: phpmyadmin/phpmyadmin
     container_name: laravel_phpmyadmin
@@ -55,6 +90,8 @@ services:
 
 volumes:
   mysql_data:
+  vendor_data:
+  storage_data:
 
 networks:
   app_network:

@@ -34,7 +34,7 @@
                  console.warn('Echo non disponible', e);
              }
          ">
-        <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="card !p-0 overflow-hidden flex flex-col h-[600px]">
                 <div class="border-b border-slate-200/70 bg-slate-50/90 px-4 py-3 flex items-center justify-between">
                     <span class="text-sm font-medium text-slate-700">{{ $conversation->title }}</span>
