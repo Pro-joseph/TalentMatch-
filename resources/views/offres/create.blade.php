@@ -1,93 +1,61 @@
-@extends('layouts.app')
-
-@section('title', 'Nouvelle offre — ' . config('app.name'))
-
-@section('content')
-    <h1 class="text-2xl font-semibold mb-6">Nouvelle offre d'emploi</h1>
-
-    <form method="POST" action="{{ route('offres.store') }}" class="max-w-2xl space-y-6">
-        @csrf
-
-        <div>
-            <label for="titre" class="block text-sm font-medium mb-1">Titre</label>
-            <input type="text" name="titre" id="titre" value="{{ old('titre') }}" required
-                class="w-full border border-[#e3e3e0] dark:border-[#3E3E3A] bg-transparent rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-[#1b1b18] dark:focus:border-white">
-            @error('titre')
-                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="description" class="block text-sm font-medium mb-1">Description</label>
-            <textarea name="description" id="description" rows="6" required
-                class="w-full border border-[#e3e3e0] dark:border-[#3E3E3A] bg-transparent rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-[#1b1b18] dark:focus:border-white">{{ old('description') }}</textarea>
-            @error('description')
-                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="competences_requises" class="block text-sm font-medium mb-1">Compétences requises</label>
-            <div id="skills-wrapper">
-                @if (old('competences_requises'))
-                    @foreach (old('competences_requises') as $skill)
-                        <div class="flex items-center gap-2 mb-2">
-                            <input type="text" name="competences_requises[]" value="{{ $skill }}" required
-                                class="w-full border border-[#e3e3e0] dark:border-[#3E3E3A] bg-transparent rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-[#1b1b18] dark:focus:border-white">
-                            <button type="button" class="remove-skill text-red-600 text-sm">✕</button>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="flex items-center gap-2 mb-2">
-                        <input type="text" name="competences_requises[]" required
-                            class="w-full border border-[#e3e3e0] dark:border-[#3E3E3A] bg-transparent rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-[#1b1b18] dark:focus:border-white">
-                        <button type="button" class="remove-skill text-red-600 text-sm">✕</button>
-                    </div>
-                @endif
-            </div>
-            <button type="button" id="add-skill" class="text-sm text-[#706f6c] dark:text-[#A1A09A] hover:text-[#1b1b18] dark:hover:text-white mt-1">+ Ajouter une compétence</button>
-            @error('competences_requises')
-                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="experience_min" class="block text-sm font-medium mb-1">Expérience minimale (années)</label>
-            <input type="number" name="experience_min" id="experience_min" value="{{ old('experience_min', 0) }}" min="0" max="50" required
-                class="w-full border border-[#e3e3e0] dark:border-[#3E3E3A] bg-transparent rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-[#1b1b18] dark:focus:border-white">
-            @error('experience_min')
-                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
+<x-app-layout>
+    <x-slot name="header">
         <div class="flex items-center gap-4">
-            <button type="submit" class="px-5 py-1.5 bg-[#1b1b18] dark:bg-white text-white dark:text-[#1b1b18] rounded-sm text-sm">Créer</button>
-            <a href="{{ route('offres.index') }}" class="text-sm text-[#706f6c] dark:text-[#A1A09A] underline underline-offset-2">Annuler</a>
+            <a href="{{ route('offres.index') }}" class="btn-ghost p-1.5 -ml-1.5 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <h1 class="page-title">Nouvelle offre d'emploi</h1>
         </div>
-    </form>
-@endsection
+    </x-slot>
 
-@push('scripts')
-<script>
-    document.getElementById('add-skill')?.addEventListener('click', function () {
-        const wrapper = document.getElementById('skills-wrapper');
-        const div = document.createElement('div');
-        div.className = 'flex items-center gap-2 mb-2';
-        div.innerHTML = `
-            <input type="text" name="competences_requises[]" required
-                class="w-full border border-[#e3e3e0] dark:border-[#3E3E3A] bg-transparent rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-[#1b1b18] dark:focus:border-white">
-            <button type="button" class="remove-skill text-red-600 text-sm">✕</button>
-        `;
-        wrapper.appendChild(div);
-    });
+    <div class="pb-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="card p-6 sm:p-8">
+                <form method="POST" action="{{ route('offres.store') }}" class="space-y-6">
+                    @csrf
 
-    document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('remove-skill')) {
-            const row = e.target.closest('.flex');
-            if (document.querySelectorAll('#skills-wrapper .flex').length > 1) {
-                row.remove();
-            }
-        }
-    });
-</script>
-@endpush
+                    <div>
+                        <x-input-label for="titre" value="Titre" />
+                        <input id="titre" class="form-input-xl mt-1.5" type="text" name="titre" :value="old('titre')" required autofocus />
+                        <x-input-error :messages="$errors->get('titre')" class="mt-1.5" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="description" value="Description" />
+                        <textarea id="description" name="description" rows="6" required
+                            class="form-input-xl mt-1.5 resize-y">{{ old('description') }}</textarea>
+                        <x-input-error :messages="$errors->get('description')" class="mt-1.5" />
+                    </div>
+
+                    <div>
+                        <x-input-label value="Compétences requises" />
+                        <div class="mt-1.5">
+                            <x-skill-input name="competences_requises" :existing="old('competences_requises', [])" />
+                        </div>
+                        <x-input-error :messages="$errors->get('competences_requises')" class="mt-1.5" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="experience_min" value="Expérience minimale" />
+                        <select id="experience_min" name="experience_min" required
+                            class="form-select mt-1.5">
+                            @for ($i = 0; $i <= 15; $i++)
+                                <option value="{{ $i }}" @selected(old('experience_min', 0) == $i)>
+                                    {{ $i === 0 ? 'Aucune' : ($i === 1 ? '1 an' : $i . ' ans') }}
+                                </option>
+                            @endfor
+                        </select>
+                        <x-input-error :messages="$errors->get('experience_min')" class="mt-1.5" />
+                    </div>
+
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="btn-primary">Créer l'offre</button>
+                        <a href="{{ route('offres.index') }}" class="btn-ghost">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
