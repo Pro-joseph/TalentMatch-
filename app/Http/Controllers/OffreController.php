@@ -24,7 +24,13 @@ class OffreController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('offres.index', compact('offres'));
+        $pendingIds = Analyse::whereIn('offre_id', $offres->pluck('id'))
+            ->where('status', 'pending')
+            ->pluck('id');
+
+        $statusUrls = $pendingIds->mapWithKeys(fn ($id) => [$id => route('analyses.status', $id)]);
+
+        return view('offres.index', compact('offres', 'pendingIds', 'statusUrls'));
     }
 
     public function create(): View

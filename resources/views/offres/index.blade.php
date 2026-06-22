@@ -14,7 +14,30 @@
         </div>
     </x-slot>
 
-    <div class="py-8 md:py-10">
+    <div class="py-8 md:py-10"
+         x-data="{
+             statusUrls: @json($statusUrls),
+             pendingIds: @json($pendingIds),
+         }"
+         x-init="
+             window.addEventListener('pageshow', (e) => { if (e.persisted) window.location.reload(); });
+             pendingIds.forEach(id => {
+                 let url = statusUrls[id];
+                 setInterval(async () => {
+                     try {
+                         let res = await fetch(url);
+                         let data = await res.json();
+                         if (data.status !== 'pending') window.location.reload();
+                     } catch (e) {}
+                 }, 5000);
+                 try {
+                     Echo.private('analyses.' + id)
+                         .listen('.AnalysisCompleted', () => window.location.reload());
+                 } catch (e) {
+                     console.warn('Echo non disponible', e);
+                 }
+             });
+         ">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             @if ($offres->isEmpty())
